@@ -26,6 +26,7 @@ import (
 	"os"
 	"time"
 
+	"database/sql"
 	"github.com/go-sql-driver/mysql"
 	"github.com/juju/errors"
 	. "github.com/pingcap/check"
@@ -37,6 +38,7 @@ import (
 type TidbTestSuite struct {
 	tidbdrv *TiDBDriver
 	server  *Server
+	xserver *Server
 }
 
 var suite = new(TidbTestSuite)
@@ -57,12 +59,22 @@ func (ts *TidbTestSuite) SetUpSuite(c *C) {
 		Performance: config.Performance{
 			TCPKeepAlive: true,
 		},
+		XProtocol: config.XProtocol{
+			XServer: true,
+			XPort:   14001,
+		},
 	}
 
 	server, err := NewServer(cfg, ts.tidbdrv, MysqlProtocol)
 	c.Assert(err, IsNil)
 	ts.server = server
 	go ts.server.Run()
+
+	xserver, err := NewServer(cfg, ts.tidbdrv, MysqlXProtocol)
+	c.Assert(err, IsNil)
+	ts.xserver = xserver
+	go ts.xserver.Run()
+
 	waitUntilServerOnline(cfg.Status.StatusPort)
 
 	// Run this test here because parallel would affect the result of it.
@@ -417,4 +429,16 @@ func (ts *TidbTestSuite) TestShowCreateTableFlen(c *C) {
 	c.Assert(len(cols), Equals, 2)
 	c.Assert(int(cols[0].ColumnLength), Equals, 5*tmysql.MaxBytesOfCharacter)
 	c.Assert(int(cols[1].ColumnLength), Equals, len(row[1].GetString())*tmysql.MaxBytesOfCharacter)
+}
+
+func (ts *TidbTestSuite) TestOnXServer(c *C) {
+	dsn := "root@tcp(localhost:14001)/test?xprotocol=1"
+	db, err := sql.Open("mysql/xprotocol", dsn)
+	c.Assert(err, IsNil, Commentf("Error connecting"))
+	_, err = db.Query("SELECT DATABASE()")
+	c.Assert(err, IsNil, Commentf("Error: %s", err))
+	_, err = db.Query("SELECT ABC")
+	c.Assert(err, IsNil, Commentf("Error: %s", err))
+	err = db.Close()
+	c.Assert(err, IsNil, Commentf("Error close db: %s", err))
 }

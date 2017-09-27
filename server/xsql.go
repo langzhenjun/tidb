@@ -98,7 +98,8 @@ func WriteResultSet(r ResultSet, pkt *xpacketio.XPacketIO, alloc arena.Allocator
 
 	// Write column information.
 	for _, c := range cols {
-		tp, err := util.MysqlType2XType(c.Type, mysql.HasUnsignedFlag(uint(c.Flag)))
+		var tp Mysqlx_Resultset.ColumnMetaData_FieldType
+		tp, err = util.MysqlType2XType(c.Type, mysql.HasUnsignedFlag(uint(c.Flag)))
 		if err != nil {
 			return errors.Trace(err)
 		}
@@ -112,11 +113,12 @@ func WriteResultSet(r ResultSet, pkt *xpacketio.XPacketIO, alloc arena.Allocator
 			Length:        &c.ColumnLength,
 			Flags:         &flags,
 		}
-		data, err := columnMeta.Marshal()
+		var data []byte
+		data, err = columnMeta.Marshal()
 		if err != nil {
 			return errors.Trace(err)
 		}
-		if err := pkt.WritePacket(Mysqlx.ServerMessages_RESULTSET_COLUMN_META_DATA, data); err != nil {
+		if err = pkt.WritePacket(Mysqlx.ServerMessages_RESULTSET_COLUMN_META_DATA, data); err != nil {
 			return errors.Trace(err)
 		}
 	}
@@ -142,7 +144,7 @@ func WriteResultSet(r ResultSet, pkt *xpacketio.XPacketIO, alloc arena.Allocator
 			return errors.Trace(err)
 		}
 
-		if err := pkt.WritePacket(Mysqlx.ServerMessages_RESULTSET_ROW, data); err != nil {
+		if err = pkt.WritePacket(Mysqlx.ServerMessages_RESULTSET_ROW, data); err != nil {
 			return errors.Trace(err)
 		}
 		row, err = r.Next()

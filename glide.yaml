@@ -28,6 +28,8 @@ import:
   version: 73d445a93680fa1a78ae23a5839bad48f32ba1ee
 - package: github.com/go-sql-driver/mysql
   version: 3955978caca48c1658a4bb7a9c6a0f084e326af3
+- package: github.com/sjmudd/go-mysqlx-driver
+  version: 5414093c94e25c96f5d699e10365a40cfcc110a6
 - package: github.com/golang/protobuf
   version: 8ee79997227bf9b34611aee7946ae64735e6fd93
   subpackages:
