@@ -1,5 +1,5 @@
-hash: 4d58322463463231636f143c321156804fc372344b684bf0d95bc8bc4cfc1321
-updated: 2017-09-15T19:38:09.566391259+08:00
+hash: 51bc747e47d0a0fce3a7e88f3b43c7d10dea1b112a8336c3610ff9220e6ca48b
+updated: 2017-09-27T16:52:01.721028034+08:00
 imports:
 - name: bitbucket.org/ww/goautoneg
   version: 75cd24fc2f2c2a2088577d12123ddee5f54e0675
@@ -85,6 +85,8 @@ imports:
   - runtime
   - runtime/internal
   - utilities
+- name: github.com/jackysp/mysqlsh
+  version: 21a22acb9d696dfbae689e504a8bdefff366e0f3
 - name: github.com/juju/errors
   version: b2c7a7da5b2995941048f60146e67702a292e468
 - name: github.com/matttproud/golang_protobuf_extensions
